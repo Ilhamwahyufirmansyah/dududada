@@ -1,15 +1,174 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import yfinance as yf
-from datetime import date
+import wbdata
+from datetime import datetime
 
 st.title("dududada")
 
 
 
 
+
+
+
+
+
+
+
+
+
 # ricky 
+
+# Streamlit setup
+st.title("World Bank Data Viewer")
+st.markdown("Menampilkan data PDB (GDP) dari World Bank API menggunakan Streamlit.")
+
+# Input dari pengguna untuk negara dan rentang tahun
+countries = st.multiselect(
+    "Pilih negara (kode ISO-3):",
+    options=["ID", "US", "CN", "JP", "DE"],  # Indonesia, US, China, Japan, Germany
+    default=["ID", "US"]
+)
+start_year = st.slider("Pilih tahun mulai:", 2000, 2023, 2010)
+end_year = st.slider("Pilih tahun akhir:", 2000, 2023, 2020)
+
+# Validasi input
+if start_year > end_year:
+    st.error("Tahun mulai tidak boleh lebih besar dari tahun akhir.")
+else:
+    # Ambil data World Bank
+    indicator = {'NY.GDP.MKTP.CD': 'GDP'}  # Indikator GDP dalam USD
+    start_date = datetime(start_year, 1, 1)
+    end_date = datetime(end_year, 12, 31)
+
+    try:
+        # Ambil data dan filter berdasarkan waktu
+        data = wbdata.get_dataframe(indicator, country=countries)
+        data = data.reset_index()  # Konversi MultiIndex ke DataFrame biasa
+        data['date'] = pd.to_datetime(data['date'])
+        data_filtered = data[(data['date'] >= start_date) & (data['date'] <= end_date)]
+
+        # Tampilkan data di Streamlit
+        st.subheader("Hasil Data")
+        if not data_filtered.empty:
+            st.dataframe(data_filtered)
+            st.write(f"Data mencakup dari {start_year} hingga {end_year}.")
+        else:
+            st.warning("Tidak ada data yang ditemukan untuk rentang waktu ini.")
+    except Exception as e:
+        st.error(f"Terjadi kesalahan: {e}")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -109,7 +268,307 @@ st.title("dududada")
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # dwi
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
