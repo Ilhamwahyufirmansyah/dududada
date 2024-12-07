@@ -1,16 +1,8 @@
 import streamlit as st
 import pandas as pd
-<<<<<<< HEAD
-import plotly.express as py
-
-st.title("dududada")
-
-
-=======
 import plotly.express as px
 import wbdata
 from datetime import datetime
->>>>>>> 695a12010702dbc201b6471e088724e17da9713b
 
 
 # ricky 
