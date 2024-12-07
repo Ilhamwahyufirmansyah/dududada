@@ -3,6 +3,9 @@ import pandas as pd
 import plotly.express as px
 import wbdata
 from datetime import datetime
+import geopandas as gpd
+import pydeck as pdk
+import openai
 
 
 # ricky 
@@ -62,7 +65,35 @@ else:
 
 
 # ilham 
+# Contoh Data
+data = pd.DataFrame({
+    "lat": [37.7749, -23.5505, 28.6139, 39.9042, 55.7558, -25.2744],
+    "lon": [-122.4194, -46.6333, 77.2090, 116.4074, 37.6173, 133.7751],
+    "Country": ["United States", "Brazil", "India", "China", "Russia", "Australia"],
+    "Value": [10, 20, 30, 40, 50, 60]
+})
 
+# Konfigurasi Layer
+layer = pdk.Layer(
+    "ScatterplotLayer",
+    data,
+    get_position="[lon, lat]",
+    get_fill_color="[Value * 10, 100, 200]",
+    get_radius="Value * 10000",
+    pickable=True
+)
+
+# Viewport Awal
+view_state = pdk.ViewState(
+    latitude=20,
+    longitude=0,
+    zoom=1,
+    pitch=40,
+)
+
+# Tampilkan Map
+st.title("🌍 Deck.gl Map Visualization")
+st.pydeck_chart(pdk.Deck(layers=[layer], initial_view_state=view_state))
 
 
 
