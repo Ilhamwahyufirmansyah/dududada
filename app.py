@@ -4,13 +4,102 @@ import plotly.express as px
 import wbdata
 from datetime import datetime
 
+st.write("# Dududada")
 
 # ricky 
 
-# Streamlit setup
-st.title("World Bank Data Viewer")
+# Daftar manual negara dan kode ISO 3
+country_list = {
+    "Indonesia": "ID",
+    "Malaysia": "MY",
+    "Singapore": "SG",
+    "Thailand": "TH",
+    "Philippines": "PH",
+    "Vietnam": "VN",
+    "Brunei Darussalam": "BN",
+    "Cambodia": "KH",
+    "Lao PDR": "LA",
+    "Myanmar": "MM",
+}
 
-st.write("# Tugas Kelompok Dududada")
+# Fungsi untuk menarik data dari wbdata
+def fetch_data(indicator, countries, start_year, end_year):
+    # Mengambil data untuk rentang tahun tertentu
+    data = wbdata.get_dataframe({indicator: 'value'}, country=countries)
+    
+    # Memfilter berdasarkan tahun
+    data.reset_index(inplace=True)
+    data['Year'] = data['date'].apply(lambda x: int(x[:4]))  # Mengambil tahun dari string tanggal
+    data = data[(data['Year'] >= start_year) & (data['Year'] <= end_year)]
+    data.rename(columns={'value': 'Value', 'country': 'Country'}, inplace=True)
+    data = data[['Year', 'Country', 'Value']]
+    
+    return data
+
+# Daftar indikator dan mapping ke kode wbdata
+indicators = {
+    "Inflasi": "FP.CPI.TOTL.ZG",
+    "Kemiskinan": "SI.POV.DDAY",
+    "Pengangguran": "SL.UEM.TOTL.ZS",
+    "Pertumbuhan ekonomi": "NY.GDP.MKTP.KD.ZG",
+    "Jumlah populasi": "SP.POP.TOTL",
+}
+
+# Sidebar
+st.sidebar.header("Pilihan Data")
+selected_indicator = st.sidebar.selectbox("Pilih Indikator", list(indicators.keys()))
+
+selected_countries = st.sidebar.multiselect("Pilih Negara", options=country_list.keys(), default=["Indonesia", "Malaysia", "Singapore"])
+
+selected_years = st.sidebar.slider("Pilih Tahun", 2000, 2023, (2010, 2020))
+
+# Tabs
+tabs = st.tabs(["Home", "Data dan Analisis", "Referensi"])
+
+# Tab Home
+with tabs[0]:
+    st.title("Home")
+    st.write("""
+        Halaman ini bertujuan untuk memberikan analisis data ekonomi dari berbagai negara. 
+        Data diambil dari **World Bank** menggunakan library **wbdata**. 
+        Anda dapat memilih indikator, negara, dan rentang tahun pada sidebar.
+    """)
+
+# Tab Data dan Analisis
+with tabs[1]:
+    st.title("Data dan Analisis")
+    st.write(f"**Indikator yang Dipilih:** {selected_indicator}")
+    st.write(f"**Negara yang Dipilih:** {', '.join(selected_countries)}")
+    st.write(f"**Periode Tahun:** {selected_years[0]} - {selected_years[1]}")
+
+    # Mengonversi nama negara menjadi kode negara
+    selected_country_codes = [country_list[country] for country in selected_countries]
+
+    # Fetch data
+    if selected_country_codes:
+        data = fetch_data(indicators[selected_indicator], selected_country_codes, selected_years[0], selected_years[1])
+        if data is not None and not data.empty:
+            st.write("### Tabel Data")
+            st.dataframe(data)
+
+            st.write("### Visualisasi Data")
+            chart = data.pivot(index="Year", columns="Country", values="Value")
+            st.line_chart(chart)
+        else:
+            st.warning("Data tidak ditemukan untuk pilihan ini.")
+    else:
+        st.warning("Silakan pilih setidaknya satu negara.")
+
+# Tab Referensi
+with tabs[2]:
+    st.title("Referensi")
+    st.write("""
+        Data yang digunakan dalam analisis ini diambil dari **World Bank** melalui library **wbdata**.
+        Informasi lebih lanjut tentang data dapat ditemukan di: [https://data.worldbank.org](https://data.worldbank.org)
+    """)
+
+
+# Streamlit setup
 
 st.write("## Pendahuluan")
 st.write("Tuliskan di bagian ini latar belakang data apa yang dipilih, mengapa kelompok memilih data ini, dsb.")
@@ -21,43 +110,6 @@ st.write("Tuliskan di bagian ini deskripsi tentang data yang digunakan.")
 st.write("## Visualisasi")
 st.write("Buat visualisasi yang menurut kelompok kalian perlu ditampilkan.")
 st.write("Gunakan juga elemen-elemen interaktif `streamlit`.")
-
-st.markdown("Menampilkan data PDB (GDP) dari World Bank API menggunakan Streamlit.")
-
-# Input dari pengguna untuk negara dan rentang tahun
-countries = st.multiselect(
-    "Pilih negara (kode ISO-3):",
-    options=["ID", "US", "CN", "JP", "DE"],  # Indonesia, US, China, Japan, Germany
-    default=["ID", "US"]
-)
-start_year = st.slider("Pilih tahun mulai:", 2000, 2023, 2010)
-end_year = st.slider("Pilih tahun akhir:", 2000, 2023, 2020)
-
-# Validasi input
-if start_year > end_year:
-    st.error("Tahun mulai tidak boleh lebih besar dari tahun akhir.")
-else:
-    # Ambil data World Bank
-    indicator = {'NY.GDP.MKTP.CD': 'GDP'}  # Indikator GDP dalam USD
-    start_date = datetime(start_year, 1, 1)
-    end_date = datetime(end_year, 12, 31)
-
-    try:
-        # Ambil data dan filter berdasarkan waktu
-        data = wbdata.get_dataframe(indicator, country=countries)
-        data = data.reset_index()  # Konversi MultiIndex ke DataFrame biasa
-        data['date'] = pd.to_datetime(data['date'])
-        data_filtered = data[(data['date'] >= start_date) & (data['date'] <= end_date)]
-
-        # Tampilkan data di Streamlit
-        st.subheader("Hasil Data")
-        if not data_filtered.empty:
-            st.dataframe(data_filtered)
-            st.write(f"Data mencakup dari {start_year} hingga {end_year}.")
-        else:
-            st.warning("Tidak ada data yang ditemukan untuk rentang waktu ini.")
-    except Exception as e:
-        st.error(f"Terjadi kesalahan: {e}")
 
 
 
