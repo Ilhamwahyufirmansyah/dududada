@@ -68,6 +68,9 @@ with tabs[0]:
         Anda dapat memilih indikator, negara, dan rentang tahun pada sidebar.
     """)
 
+    st.write("## 1. Pendahuluan")
+    st.write("Tuliskan di bagian ini latar belakang data apa yang dipilih, mengapa kelompok memilih data ini, dsb.")
+
 # Tab Data dan Analisis
 with tabs[1]:
     st.title("Data dan Analisis")
@@ -75,9 +78,16 @@ with tabs[1]:
     st.write(f"**Negara yang Dipilih:** {', '.join(selected_countries)}")
     st.write(f"**Periode Tahun:** {selected_years[0]} - {selected_years[1]}")
 
+    st.write("## 2. Deskripsi Data")
+    st.write("Tuliskan di bagian ini deskripsi tentang data yang digunakan.")
+
+    st.write("## 3. Visualisasi")
+    st.write("Buat visualisasi yang menurut kelompok kalian perlu ditampilkan.")
+    st.write("Gunakan juga elemen-elemen interaktif `streamlit`.")
+    
     # Mengonversi nama negara menjadi kode negara
     selected_country_codes = [country_list[country] for country in selected_countries]
-
+    
     # Fetch data
     if selected_country_codes:
         data = fetch_data(indicators[selected_indicator], selected_country_codes, selected_years[0], selected_years[1])
@@ -93,6 +103,12 @@ with tabs[1]:
     else:
         st.warning("Silakan pilih setidaknya satu negara.")
 
+    st.write("## 4. Analisis")
+    st.write("Buat analisis sederhana dari visualisasi data yang muncul di bagian sebelumnya.")
+
+    st.write("## 5. Kesimpulan")
+    st.write("Tuliskan butir-butir kesimpulan dari analisis.")
+
 # Tab Referensi
 with tabs[2]:
     st.title("Referensi")
@@ -101,19 +117,8 @@ with tabs[2]:
         Informasi lebih lanjut tentang data dapat ditemukan di: [https://data.worldbank.org](https://data.worldbank.org)
     """)
 
-
-# Streamlit setup
-
-st.write("## Pendahuluan")
-st.write("Tuliskan di bagian ini latar belakang data apa yang dipilih, mengapa kelompok memilih data ini, dsb.")
-
-st.write("## Deskripsi Data")
-st.write("Tuliskan di bagian ini deskripsi tentang data yang digunakan.")
-
-st.write("## Visualisasi")
-st.write("Buat visualisasi yang menurut kelompok kalian perlu ditampilkan.")
-st.write("Gunakan juga elemen-elemen interaktif `streamlit`.")
-
+    st.write("## 6. Referensi / Daftar Pustaka")
+    st.write("Tuliskan di bagian ini referensi yang digunakan dalam proyek kelompok ini, misalnya sumber data, makalah ilmiah, dsb.")
 
 
 # ilham 
@@ -160,13 +165,8 @@ st.pydeck_chart(pdk.Deck(layers=[layer], initial_view_state=view_state))
 
 # fatim
 
-st.write("## Analisis")
-st.write("Buat analisis sederhana dari visualisasi data yang muncul di bagian sebelumnya.")
 
-st.write("## Kesimpulan")
-st.write("Tuliskan butir-butir kesimpulan dari analisis.")
 
-st.write("## Referensi / Daftar Pustaka")
-st.write("Tuliskan di bagian ini referensi yang digunakan dalam proyek kelompok ini, misalnya sumber data, makalah ilmiah, dsb.")
+
 
 
