@@ -79,7 +79,7 @@ with tabs[1]:
     st.write(f"**Periode Tahun          :** {selected_years[0]} - {selected_years[1]}")
 
     st.caption("Data yang anda pilih akan diambil dari World Bank Data kemudian ditampilkan dan dianalisis dibawah ini")
-    
+
     st.write("## 2. Data")
     st.write("Anda dapat menampilkan data dalam tabel.")
 
@@ -96,11 +96,20 @@ with tabs[1]:
                 st.write("### Tabel Data")
                 st.dataframe(data)
 
+                # Tambahkan tombol unduh data
+                csv = data.to_csv(index=False)
+                st.download_button(
+                    label="Unduh Data sebagai CSV",
+                    data=csv,
+                    file_name="data.csv",
+                    mime="text/csv"
+                )
+
             st.write("## 3. Visualisasi")
             st.write("Anda dapat melihat visualisasi data yang anda pilih untuk lebih memahaminya")
 
             chart = data.pivot(index="Year", columns="Country", values="Value")
-            
+
             show_line_chart = st.toggle("Tampilkan Line Chart", value=True)
             if show_line_chart:
                 st.write("### Line Chart")
@@ -110,16 +119,49 @@ with tabs[1]:
             if show_bar_chart:
                 st.write("### Bar Chart")
                 st.bar_chart(chart)
+
+            show_scatter_plot = st.toggle("Tampilkan Scatter Plot", value=False)
+            if show_scatter_plot:
+                st.write("### Scatter Plot")
+                fig = px.scatter(data, x="Year", y="Value", color="Country", title="Scatter Plot")
+                st.plotly_chart(fig)
+
+            st.write("## 4. Analisis")
+            st.write("Berikut ini analisis atas data yang anda pilih")
+
+            # Menambahkan analisis statistik
+            st.write("### Statistik Deskriptif")
+            st.write(data.groupby("Country")["Value"].describe())
+
+            # Analisis otomatis menggunakan API OpenAI versi terbaru
+            st.write("### Analisis Otomatis")
+            with st.spinner("Menghasilkan analisis..."):
+                import openai
+
+                # Menyiapkan prompt untuk analisis otomatis
+                prompt = f"Buat analisis terhadap data berikut:\n\n{data.head(10).to_string()}\n\nTampilkan pola, tren, atau insight menarik dari data ini."
+
+                try:
+                    response = openai.ChatCompletion.create(
+                        model="gpt-3.5-turbo",
+                        messages=[
+                            {"role": "system", "content": "Anda adalah asisten analisis data yang ahli."},
+                            {"role": "user", "content": prompt}
+                        ]
+                    )
+                    analysis = response["choices"][0]["message"]["content"].strip()
+                    st.write(analysis)
+                except Exception as e:
+                    st.error(f"Gagal menghasilkan analisis otomatis: {e}")
+
         else:
             st.warning("Data tidak ditemukan untuk pilihan ini.")
     else:
         st.warning("Silakan pilih setidaknya satu negara.")
 
-    st.write("## 4. Analisis")
-    st.write("Buat analisis sederhana dari visualisasi data yang muncul di bagian sebelumnya.")
-
     st.write("## 5. Kesimpulan")
-    st.write("Tuliskan butir-butir kesimpulan dari analisis.")
+    st.write("Kesimpulan dari analisis.")
+
 
 # Tab Referensi
 with tabs[2]:
