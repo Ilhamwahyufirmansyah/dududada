@@ -49,7 +49,7 @@ indicators = {
 }
 
 # Sidebar
-st.sidebar.header("Pilihan Data")
+st.sidebar.header("Silakan Memilih Data")
 selected_indicator = st.sidebar.selectbox("Pilih Indikator", list(indicators.keys()))
 
 selected_countries = st.sidebar.multiselect("Pilih Negara", options=country_list.keys(), default=["Indonesia", "Malaysia", "Singapore"])
@@ -73,31 +73,43 @@ with tabs[0]:
 
 # Tab Data dan Analisis
 with tabs[1]:
-    st.title("Data dan Analisis")
-    st.write(f"**Indikator yang Dipilih:** {selected_indicator}")
-    st.write(f"**Negara yang Dipilih:** {', '.join(selected_countries)}")
-    st.write(f"**Periode Tahun:** {selected_years[0]} - {selected_years[1]}")
+    st.title("Menampilkan Data yang Anda Pilih")
+    st.write(f"**Indikator yang Dipilih :** {selected_indicator}")
+    st.write(f"**Negara yang Dipilih    :** {', '.join(selected_countries)}")
+    st.write(f"**Periode Tahun          :** {selected_years[0]} - {selected_years[1]}")
 
-    st.write("## 2. Deskripsi Data")
-    st.write("Tuliskan di bagian ini deskripsi tentang data yang digunakan.")
-
-    st.write("## 3. Visualisasi")
-    st.write("Buat visualisasi yang menurut kelompok kalian perlu ditampilkan.")
-    st.write("Gunakan juga elemen-elemen interaktif `streamlit`.")
+    st.caption("Data yang anda pilih akan diambil dari World Bank Data kemudian ditampilkan dan dianalisis dibawah ini")
     
+    st.write("## 2. Data")
+    st.write("Anda dapat menampilkan data dalam tabel.")
+
     # Mengonversi nama negara menjadi kode negara
     selected_country_codes = [country_list[country] for country in selected_countries]
-    
+
     # Fetch data
     if selected_country_codes:
         data = fetch_data(indicators[selected_indicator], selected_country_codes, selected_years[0], selected_years[1])
         if data is not None and not data.empty:
-            st.write("### Tabel Data")
-            st.dataframe(data)
+            show_dataframe = st.toggle("Tampilkan Tabel", value=True)
 
-            st.write("### Visualisasi Data")
+            if show_dataframe:
+                st.write("### Tabel Data")
+                st.dataframe(data)
+
+            st.write("## 3. Visualisasi")
+            st.write("Anda dapat melihat visualisasi data yang anda pilih untuk lebih memahaminya")
+
             chart = data.pivot(index="Year", columns="Country", values="Value")
-            st.line_chart(chart)
+            
+            show_line_chart = st.toggle("Tampilkan Line Chart", value=True)
+            if show_line_chart:
+                st.write("### Line Chart")
+                st.line_chart(chart)
+
+            show_bar_chart = st.toggle("Tampilkan Bar Chart", value=True)
+            if show_bar_chart:
+                st.write("### Bar Chart")
+                st.bar_chart(chart)
         else:
             st.warning("Data tidak ditemukan untuk pilihan ini.")
     else:
