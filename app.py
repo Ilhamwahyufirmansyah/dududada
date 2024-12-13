@@ -126,6 +126,40 @@ with tabs[1]:
                 fig = px.scatter(data, x="Year", y="Value", color="Country", title="Scatter Plot")
                 st.plotly_chart(fig)
 
+#ilham
+            st.write("### Deck.gl Map Visualization")
+        
+            show_map = st.toggle("Tampilkan Deck.gl Map", value=False)
+            if show_map:
+                # Contoh Data
+                map_data = pd.DataFrame({
+                    "lat": [37.7749, -23.5505, 28.6139, 39.9042, 55.7558, -25.2744],
+                    "lon": [-122.4194, -46.6333, 77.2090, 116.4074, 37.6173, 133.7751],
+                    "Country": ["United States", "Brazil", "India", "China", "Russia", "Australia"],
+                    "Value": [10, 20, 30, 40, 50, 60]
+                })
+
+            # Konfigurasi Layer
+            layer = pdk.Layer(
+                "ScatterplotLayer",
+                map_data,
+                get_position="[lon, lat]",
+                get_fill_color="[Value * 10, 100, 200]",
+                get_radius="Value * 10000",
+                pickable=True
+            )
+
+            # Viewport Awal
+            view_state = pdk.ViewState(
+                latitude=20,
+                longitude=0,
+                zoom=1,
+                pitch=40,
+            )
+
+            # Tampilkan Map
+            st.pydeck_chart(pdk.Deck(layers=[layer], initial_view_state=view_state))            
+            
             st.write("## 4. Analisis")
             st.write("Berikut ini analisis atas data yang anda pilih")
 
@@ -165,46 +199,13 @@ with tabs[1]:
 
 # Tab Referensi
 with tabs[2]:
-    st.title("Referensi")
-    st.write("""
+    st.title("6. Referensi")
+    st.caption("""
         Data yang digunakan dalam analisis ini diambil dari **World Bank** melalui library **wbdata**.
         Informasi lebih lanjut tentang data dapat ditemukan di: [https://data.worldbank.org](https://data.worldbank.org)
     """)
-
-    st.write("## 6. Referensi / Daftar Pustaka")
+    
     st.write("Tuliskan di bagian ini referensi yang digunakan dalam proyek kelompok ini, misalnya sumber data, makalah ilmiah, dsb.")
-
-
-# ilham 
-# Contoh Data
-data = pd.DataFrame({
-    "lat": [37.7749, -23.5505, 28.6139, 39.9042, 55.7558, -25.2744],
-    "lon": [-122.4194, -46.6333, 77.2090, 116.4074, 37.6173, 133.7751],
-    "Country": ["United States", "Brazil", "India", "China", "Russia", "Australia"],
-    "Value": [10, 20, 30, 40, 50, 60]
-})
-
-# Konfigurasi Layer
-layer = pdk.Layer(
-    "ScatterplotLayer",
-    data,
-    get_position="[lon, lat]",
-    get_fill_color="[Value * 10, 100, 200]",
-    get_radius="Value * 10000",
-    pickable=True
-)
-
-# Viewport Awal
-view_state = pdk.ViewState(
-    latitude=20,
-    longitude=0,
-    zoom=1,
-    pitch=40,
-)
-
-# Tampilkan Map
-st.title("🌍 Deck.gl Map Visualization")
-st.pydeck_chart(pdk.Deck(layers=[layer], initial_view_state=view_state))
 
 
 
