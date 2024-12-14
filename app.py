@@ -8,6 +8,7 @@ import pydeck as pdk
 import openai
 
 st.write("# Dududada")
+st.write("### Dynamic Update and Distribution of up-to-date DAta on DAshboard ")
 
 # ricky 
 
@@ -58,18 +59,6 @@ selected_years = st.sidebar.slider("Pilih Tahun", 2000, 2023, (2010, 2020))
 
 # Tabs
 tabs = st.tabs(["Home", "Data dan Analisis", "Referensi"])
-
-# Tab Home
-with tabs[0]:
-    st.title("Home")
-    st.write("""
-        Halaman ini bertujuan untuk memberikan analisis data ekonomi dari berbagai negara. 
-        Data diambil dari **World Bank** menggunakan library **wbdata**. 
-        Anda dapat memilih indikator, negara, dan rentang tahun pada sidebar.
-    """)
-
-    st.write("## 1. Pendahuluan")
-    st.write("Tuliskan di bagian ini latar belakang data apa yang dipilih, mengapa kelompok memilih data ini, dsb.")
 
 # Tab Data dan Analisis
 with tabs[1]:
@@ -199,7 +188,7 @@ with tabs[1]:
 
 # Tab Referensi
 with tabs[2]:
-    st.title("6. Referensi")
+    st.title("Referensi")
     st.caption("""
         Data yang digunakan dalam analisis ini diambil dari **World Bank** melalui library **wbdata**.
         Informasi lebih lanjut tentang data dapat ditemukan di: [https://data.worldbank.org](https://data.worldbank.org)
@@ -211,6 +200,25 @@ with tabs[2]:
 
 
 # dwi
+with tabs[0]:
+    st.write("### Selamat Datang di Almanac!")
+    st.write("Almanac merupakan halaman yang menyediakan data dan analisis ekonomi dari berbagai negara pada berbagai rentang tahun.",
+        "Data tersebut meliputi beberapa indikator penting, seperti tingkat inflasi, kemiskinan, pengangguran, pertumbuhan ekonomi, dan jumlah populasi yang bersumber dari World Bank.")
+    st.write("##### 1. Inflasi")
+    st.write('Inflasi, yang diukur dengan Indeks Harga Konsumen (IHK), mencerminkan perubahan persentase tahunan dalam biaya yang dikeluarkan oleh konsumen untuk memperoleh barang dan jasa.')
+    st.write("##### 2. Kemiskinan")
+    st.write("Tingkat kemiskinan direpresentasikan oleh penduduk yang hidup dengan pengeluaran kurang dari $2,15 per hari yang dihitung berdasarkan harga yang disesuaikan dengan daya beli pada tahun 2017.",
+    "Indikator ini menghitung jumlah penduduk miskin menurut standar internasional yang telah disesuaikan dengan perubahan harga dan nilai tukar antar negara pada tahun 2017.")
+    st.write("##### 3. Pengangguran")
+    st.write("Tingkat pengangguran merupakan persentase dari angkatan kerja yang tidak memiliki pekerjaan tetapi sedang dalam proses mencari pekerjaan.")
+    st.write("##### 4. Pertumbuhan Ekonomi")
+    st.write("Pertumbuhan ekonomi merupakan kenaikan produksi barang dan jasa di suatu negara dalam periode waktu tertentu yang diukur dengan perubahan Produk Domestik Bruto (PDB)")
+    st.write("##### 5. Jumlah Populasi")
+    st.write("Jumlah populasi suatu negara meruapakn jumlah individu yang tinggal di negara tersebut pada suatu waktu tertentu. Nilai jumlah populasi yang ditampilkan merupakan perkiraan pada pertengahan tahun")
+    st.write("")
+    st.write("Untuk melihat data-data tersebut, pilih filter data di Sidebar dan buka tab Data dan Analisis.")
+
+
 
 
 
