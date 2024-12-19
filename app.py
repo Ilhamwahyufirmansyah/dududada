@@ -6,184 +6,112 @@ from datetime import datetime
 import geopandas as gpd
 import pydeck as pdk
 import openai
+import altair as alt
+
 
 st.write("# Dududada")
 st.write("### Dynamic Update and Distribution of up-to-date DAta on DAshboard ")
 
 # ricky 
-
-# Daftar manual negara dan kode ISO 3
-country_list = {
-    "Indonesia": "ID",
-    "Malaysia": "MY",
-    "Singapore": "SG",
-    "Thailand": "TH",
-    "Philippines": "PH",
-    "Vietnam": "VN",
-    "Brunei Darussalam": "BN",
-    "Cambodia": "KH",
-    "Lao PDR": "LA",
-    "Myanmar": "MM",
-}
-
-# Fungsi untuk menarik data dari wbdata
-def fetch_data(indicator, countries, start_year, end_year):
-    # Mengambil data untuk rentang tahun tertentu
-    data = wbdata.get_dataframe({indicator: 'value'}, country=countries)
-    
-    # Memfilter berdasarkan tahun
-    data.reset_index(inplace=True)
-    data['Year'] = data['date'].apply(lambda x: int(x[:4]))  # Mengambil tahun dari string tanggal
-    data = data[(data['Year'] >= start_year) & (data['Year'] <= end_year)]
-    data.rename(columns={'value': 'Value', 'country': 'Country'}, inplace=True)
-    data = data[['Year', 'Country', 'Value']]
-    
-    return data
-
-# Daftar indikator dan mapping ke kode wbdata
-indicators = {
-    "Inflasi": "FP.CPI.TOTL.ZG",
-    "Kemiskinan": "SI.POV.DDAY",
-    "Pengangguran": "SL.UEM.TOTL.ZS",
-    "Pertumbuhan ekonomi": "NY.GDP.MKTP.KD.ZG",
-    "Jumlah populasi": "SP.POP.TOTL",
-}
-
-# Sidebar
-st.sidebar.header("Silakan Memilih Data")
-selected_indicator = st.sidebar.selectbox("Pilih Indikator", list(indicators.keys()))
-
-selected_countries = st.sidebar.multiselect("Pilih Negara", options=country_list.keys(), default=["Indonesia", "Malaysia", "Singapore"])
-
-selected_years = st.sidebar.slider("Pilih Tahun", 2000, 2023, (2010, 2020))
-
 # Tabs
 tabs = st.tabs(["Home", "Data dan Analisis", "Referensi"])
 
-# Tab Data dan Analisis
-with tabs[1]:
-    st.title("Menampilkan Data yang Anda Pilih")
-    st.write(f"**Indikator yang Dipilih :** {selected_indicator}")
-    st.write(f"**Negara yang Dipilih    :** {', '.join(selected_countries)}")
-    st.write(f"**Periode Tahun          :** {selected_years[0]} - {selected_years[1]}")
+# Load data
+df_reshaped = pd.read_csv('USinData.csv')
 
-    st.caption("Data yang anda pilih akan diambil dari World Bank Data kemudian ditampilkan dan dianalisis dibawah ini")
+# Clean and preprocess data
+df_reshaped['Population'] = df_reshaped['Population'].str.replace(",", "").astype(float)
 
-    st.write("## 2. Data")
-    st.write("Anda dapat menampilkan data dalam tabel.")
+# Sidebar
+with st.sidebar:
+    st.title('US in Data')
 
-    # Mengonversi nama negara menjadi kode negara
-    selected_country_codes = [country_list[country] for country in selected_countries]
+    year_list = sorted(df_reshaped.Year.unique(), reverse=True)
+    states_list = sorted(df_reshaped['States'].unique())
+    columns_list = ['Population', 'GDP', 'Unemployment', 'Poverty']
 
-    # Fetch data
-    if selected_country_codes:
-        data = fetch_data(indicators[selected_indicator], selected_country_codes, selected_years[0], selected_years[1])
-        if data is not None and not data.empty:
-            show_dataframe = st.toggle("Tampilkan Tabel", value=True)
+    selected_year = st.selectbox('Select a year', year_list)
+    selected_state = st.selectbox('Select a state', ['All'] + states_list)
+    selected_column = st.selectbox('Select data to display', columns_list)
 
-            if show_dataframe:
-                st.write("### Tabel Data")
-                st.dataframe(data)
+    df_filtered = df_reshaped[df_reshaped['Year'] == selected_year]
+    if selected_state != 'All':
+        df_filtered = df_filtered[df_filtered['States'] == selected_state]
 
-                # Tambahkan tombol unduh data
-                csv = data.to_csv(index=False)
-                st.download_button(
-                    label="Unduh Data sebagai CSV",
-                    data=csv,
-                    file_name="data.csv",
-                    mime="text/csv"
-                )
+    df_filtered_sorted = df_filtered.sort_values(by=selected_column, ascending=False)
 
-            st.write("## 3. Visualisasi")
-            st.write("Anda dapat melihat visualisasi data yang anda pilih untuk lebih memahaminya")
-
-            chart = data.pivot(index="Year", columns="Country", values="Value")
-
-            show_line_chart = st.toggle("Tampilkan Line Chart", value=True)
-            if show_line_chart:
-                st.write("### Line Chart")
-                st.line_chart(chart)
-
-            show_bar_chart = st.toggle("Tampilkan Bar Chart", value=True)
-            if show_bar_chart:
-                st.write("### Bar Chart")
-                st.bar_chart(chart)
-
-            show_scatter_plot = st.toggle("Tampilkan Scatter Plot", value=False)
-            if show_scatter_plot:
-                st.write("### Scatter Plot")
-                fig = px.scatter(data, x="Year", y="Value", color="Country", title="Scatter Plot")
-                st.plotly_chart(fig)
+    color_theme_list = ['blues', 'cividis', 'greens', 'inferno', 'magma', 'plasma', 'reds', 'rainbow', 'turbo', 'viridis']
+    selected_color_theme = st.selectbox('Select a color theme', color_theme_list)
+    
 
 #ilham
-            st.write("### Deck.gl Map Visualization")
+# Tab data dan analisis
+with tabs[1]:
+    # Heatmap
+    def make_heatmap(input_df, input_y, input_x, input_color, input_color_theme):
+        heatmap = alt.Chart(input_df).mark_rect().encode(
+            y=alt.Y(f'{input_y}:O', axis=alt.Axis(title="Year", titleFontSize=18, titlePadding=15, titleFontWeight=900, labelAngle=0)),
+            x=alt.X(f'{input_x}:O', axis=alt.Axis(title="", titleFontSize=18, titlePadding=15, titleFontWeight=900)),
+            color=alt.Color(f'max({input_color}):Q',
+                             legend=None,
+                             scale=alt.Scale(scheme=input_color_theme)),
+            stroke=alt.value('black'),
+            strokeWidth=alt.value(0.25),
+        ).properties(width=900
+        ).configure_axis(
+        labelFontSize=12,
+        titleFontSize=12
+        ) 
+        return heatmap
+    # Choropleth map
+    def make_choropleth(input_df, input_id, input_column, input_color_theme):
+        choropleth = px.choropleth(input_df, locations=input_id, color=input_column, locationmode="USA-states",
+                               color_continuous_scale=input_color_theme,
+                               range_color=(0, max(df_filtered[selected_column])),
+                               scope="usa",
+                               labels={selected_column: selected_column}
+                              )
+        choropleth.update_layout(
+            template='plotly_dark',
+            plot_bgcolor='rgba(0, 0, 0, 0)',
+            paper_bgcolor='rgba(0, 0, 0, 0)',
+            margin=dict(l=0, r=0, t=0, b=0),
+            height=350
+        )
+        return choropleth
+
+    #######################
+
+    # Dashboard Main Panel
+    col = st.columns((1.5, 4.5, 2), gap='medium')
+    with col[0]:
+            st.markdown('#### Gains/Losses')
+
+    # Display metrics for the top and bottom states
+    if not df_filtered_sorted.empty:
+        first_state_name = df_filtered_sorted.iloc[0]['States']
+        first_state_value = df_filtered_sorted.iloc[0][selected_column]
+        last_state_name = df_filtered_sorted.iloc[-1]['States']
+        last_state_value = df_filtered_sorted.iloc[-1][selected_column]
+
+        st.metric(label=first_state_name, value=f"{first_state_value:,}")
+        st.metric(label=last_state_name, value=f"{last_state_value:,}")
         
-            show_map = st.toggle("Tampilkan Deck.gl Map", value=False)
-            if show_map:
-                # Contoh Data
-                map_data = pd.DataFrame({
-                    "lat": [37.7749, -23.5505, 28.6139, 39.9042, 55.7558, -25.2744],
-                    "lon": [-122.4194, -46.6333, 77.2090, 116.4074, 37.6173, 133.7751],
-                    "Country": ["United States", "Brazil", "India", "China", "Russia", "Australia"],
-                    "Value": [10, 20, 30, 40, 50, 60]
-                })
+    with col[1]:
+        st.markdown(f'#### Total {selected_column}')
+        
+        choropleth = make_choropleth(df_filtered, 'States Code', selected_column, selected_color_theme)
+        st.plotly_chart(choropleth, use_container_width=True)
+        
+        heatmap = make_heatmap(df_reshaped, 'Year', 'States', selected_column, selected_color_theme)
+        st.altair_chart(heatmap, use_container_width=True)
 
-            # Konfigurasi Layer
-            layer = pdk.Layer(
-                "ScatterplotLayer",
-                map_data,
-                get_position="[lon, lat]",
-                get_fill_color="[Value * 10, 100, 200]",
-                get_radius="Value * 10000",
-                pickable=True
-            )
+    with col[2]:
+        st.markdown(f'#### Top States by {selected_column}')
 
-            # Viewport Awal
-            view_state = pdk.ViewState(
-                latitude=20,
-                longitude=0,
-                zoom=1,
-                pitch=40,
-            )
-
-            # Tampilkan Map
-            st.pydeck_chart(pdk.Deck(layers=[layer], initial_view_state=view_state))            
-            
-            st.write("## 4. Analisis")
-            st.write("Berikut ini analisis atas data yang anda pilih")
-
-            # Menambahkan analisis statistik
-            st.write("### Statistik Deskriptif")
-            st.write(data.groupby("Country")["Value"].describe())
-
-            # Analisis otomatis menggunakan API OpenAI versi terbaru
-            st.write("### Analisis Otomatis")
-            with st.spinner("Menghasilkan analisis..."):
-                import openai
-
-                # Menyiapkan prompt untuk analisis otomatis
-                prompt = f"Buat analisis terhadap data berikut:\n\n{data.head(10).to_string()}\n\nTampilkan pola, tren, atau insight menarik dari data ini."
-
-                try:
-                    response = openai.ChatCompletion.create(
-                        model="gpt-3.5-turbo",
-                        messages=[
-                            {"role": "system", "content": "Anda adalah asisten analisis data yang ahli."},
-                            {"role": "user", "content": prompt}
-                        ]
-                    )
-                    analysis = response["choices"][0]["message"]["content"].strip()
-                    st.write(analysis)
-                except Exception as e:
-                    st.error(f"Gagal menghasilkan analisis otomatis: {e}")
-
-        else:
-            st.warning("Data tidak ditemukan untuk pilihan ini.")
-    else:
-        st.warning("Silakan pilih setidaknya satu negara.")
-
-    st.write("## 5. Kesimpulan")
-    st.write("Kesimpulan dari analisis.")
+        st.dataframe(df_filtered_sorted,
+                 column_order=("States", selected_column),
+                 hide_index=True)
 
 
 # Tab Referensi
