@@ -9,8 +9,12 @@ import openai
 import altair as alt
 
 
-st.write("# Dududada")
-st.write("### Dynamic Update and Distribution of up-to-date DAta on DAshboard ")
+st.set_page_config(
+    page_title="US Population Dashboard",
+    layout="wide",
+    initial_sidebar_state="expanded")
+
+st.write("### Dynamic Update and Distribution of Up-to-date Data on Dashboard ")
 
 # ricky 
 # Tabs
@@ -24,7 +28,7 @@ df_reshaped['Population'] = df_reshaped['Population'].str.replace(",", "").astyp
 
 # Sidebar
 with st.sidebar:
-    st.title('US in Data')
+    st.title('US Data')
 
     year_list = sorted(df_reshaped.Year.unique(), reverse=True)
     states_list = sorted(df_reshaped['States'].unique())
@@ -76,26 +80,27 @@ with tabs[1]:
             plot_bgcolor='rgba(0, 0, 0, 0)',
             paper_bgcolor='rgba(0, 0, 0, 0)',
             margin=dict(l=0, r=0, t=0, b=0),
-            height=350
+            height=400
         )
         return choropleth
+
 
     #######################
 
     # Dashboard Main Panel
-    col = st.columns((1.5, 4.5, 2), gap='medium')
+    col = st.columns((1, 5, 2), gap='medium')
     with col[0]:
-            st.markdown('#### Gains/Losses')
+            st.markdown('##### Gains/Losses')
 
-    # Display metrics for the top and bottom states
-    if not df_filtered_sorted.empty:
-        first_state_name = df_filtered_sorted.iloc[0]['States']
-        first_state_value = df_filtered_sorted.iloc[0][selected_column]
-        last_state_name = df_filtered_sorted.iloc[-1]['States']
-        last_state_value = df_filtered_sorted.iloc[-1][selected_column]
-
-        st.metric(label=first_state_name, value=f"{first_state_value:,}")
-        st.metric(label=last_state_name, value=f"{last_state_value:,}")
+            # Display metrics for the top and bottom states
+            if not df_filtered_sorted.empty:
+                first_state_name = df_filtered_sorted.iloc[0]['States']
+                first_state_value = df_filtered_sorted.iloc[0][selected_column]
+                last_state_name = df_filtered_sorted.iloc[-1]['States']
+                last_state_value = df_filtered_sorted.iloc[-1][selected_column]
+                
+                st.metric(label=first_state_name, value=f"{first_state_value:,}")
+                st.metric(label=last_state_name, value=f"{last_state_value:,}")
         
     with col[1]:
         st.markdown(f'#### Total {selected_column}')
@@ -107,7 +112,7 @@ with tabs[1]:
         st.altair_chart(heatmap, use_container_width=True)
 
     with col[2]:
-        st.markdown(f'#### Top States by {selected_column}')
+        st.markdown(f'###### Top States by {selected_column}')
 
         st.dataframe(df_filtered_sorted,
                  column_order=("States", selected_column),
@@ -128,23 +133,8 @@ with tabs[2]:
 
 
 # dwi
-with tabs[0]:
-    st.write("### Selamat Datang di Almanac!")
-    st.write("Almanac merupakan halaman yang menyediakan data dan analisis ekonomi dari berbagai negara pada berbagai rentang tahun.",
-        "Data tersebut meliputi beberapa indikator penting, seperti tingkat inflasi, kemiskinan, pengangguran, pertumbuhan ekonomi, dan jumlah populasi yang bersumber dari World Bank.")
-    st.write("##### 1. Inflasi")
-    st.write('Inflasi, yang diukur dengan Indeks Harga Konsumen (IHK), mencerminkan perubahan persentase tahunan dalam biaya yang dikeluarkan oleh konsumen untuk memperoleh barang dan jasa.')
-    st.write("##### 2. Kemiskinan")
-    st.write("Tingkat kemiskinan direpresentasikan oleh penduduk yang hidup dengan pengeluaran kurang dari $2,15 per hari yang dihitung berdasarkan harga yang disesuaikan dengan daya beli pada tahun 2017.",
-    "Indikator ini menghitung jumlah penduduk miskin menurut standar internasional yang telah disesuaikan dengan perubahan harga dan nilai tukar antar negara pada tahun 2017.")
-    st.write("##### 3. Pengangguran")
-    st.write("Tingkat pengangguran merupakan persentase dari angkatan kerja yang tidak memiliki pekerjaan tetapi sedang dalam proses mencari pekerjaan.")
-    st.write("##### 4. Pertumbuhan Ekonomi")
-    st.write("Pertumbuhan ekonomi merupakan kenaikan produksi barang dan jasa di suatu negara dalam periode waktu tertentu yang diukur dengan perubahan Produk Domestik Bruto (PDB)")
-    st.write("##### 5. Jumlah Populasi")
-    st.write("Jumlah populasi suatu negara meruapakn jumlah individu yang tinggal di negara tersebut pada suatu waktu tertentu. Nilai jumlah populasi yang ditampilkan merupakan perkiraan pada pertengahan tahun")
-    st.write("")
-    st.write("Untuk melihat data-data tersebut, pilih filter data di Sidebar dan buka tab Data dan Analisis.")
+
+    
 
 
 
