@@ -6,3 +6,4 @@ wbdata==1.0.0
 numpy==2.1.1
 openai==1.56.2
 geopandas==1.0.1
+kaleido==0.2.1
