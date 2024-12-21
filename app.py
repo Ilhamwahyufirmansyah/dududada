@@ -124,6 +124,22 @@ with tabs[1]:
     )
     st.altair_chart(bar_chart, use_container_width=True)
 
+        # Line Chart
+    st.subheader("Tren Data Antar Tahun")
+    line_chart = alt.Chart(df_filtered).mark_line(point=True).encode(
+        x=alt.X('Year:O', axis=alt.Axis(title="Tahun", labelFontSize=14, titleFontSize=16)),
+        y=alt.Y(selected_column, axis=alt.Axis(title=f"{selected_column}", labelFontSize=14, titleFontSize=16)),
+        color=alt.Color('States:N', legend=alt.Legend(title="Negara Bagian")),
+        tooltip=['Year', 'States', selected_column],
+    ).properties(
+        width=800,
+        height=400
+    ).configure_axis(
+        labelFontSize=14,
+        titleFontSize=16
+    )
+    st.altair_chart(line_chart, use_container_width=True)
+    
     # Analisis Sederhana
     st.subheader("Analisis Data")
     if not df_filtered.empty:
