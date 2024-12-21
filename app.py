@@ -85,7 +85,7 @@ with tabs[1]:
         labels={selected_column: selected_column}
     )
     choropleth.update_layout(
-        title=f"Distribusi {selected_column} di {selected_states} untuk tahun ({', '.join(map(str, selected_years))})",
+        title=f"Distribusi {selected_column} di ({', '.join(map(str, selected_states))}) untuk tahun ({', '.join(map(str, selected_years))})",
         template='plotly_dark',
         height=600,  # Membuat peta lebih besar
         margin=dict(l=0, r=0, t=30, b=0)
