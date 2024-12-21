@@ -135,17 +135,15 @@ with tabs[1]:
         std_dev = df_filtered[selected_column].std()
 
         st.markdown(f"""
-            <div style="font-size:18px; line-height:1.8;">
             Berdasarkan analisis, rata-rata {selected_column} untuk tahun {', '.join(map(str, selected_years))} menunjukkan nilai rata-rata sebesar {avg_value:,.2f}, 
-            yang mencerminkan kondisi umum di seluruh negara bagian. <br>
+            yang mencerminkan kondisi umum di negara bagian tersebut. <br>
             
             Nilai tertinggi dicapai oleh negara bagian {max_state} dengan angka sebesar {max_value:,.2f}, 
             menunjukkan kondisi yang lebih unggul dibandingkan negara bagian lainnya. Sebaliknya, nilai terendah dicatat oleh 
             negara bagian {min_state} dengan angka sebesar {min_value:,.2f}, menunjukkan tantangan dalam indikator ini. <br>
             
             Tingkat variasi antar negara bagian dapat dilihat dari deviasi standar sebesar {std_dev:,.2f}, 
-            yang menggambarkan seberapa besar perbedaan nilai dari rata-rata di seluruh negara bagian.
-            </div>
+            yang menggambarkan seberapa besar perbedaan nilai dari rata-rata di negara bagian tersebut.
         """, unsafe_allow_html=True)
     else:
         st.write("Data tidak tersedia untuk tahun atau negara bagian yang dipilih.")
