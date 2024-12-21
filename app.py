@@ -49,19 +49,19 @@ with tabs[0]:
         Data yang digunakan dalam analisis ini dipilih dengan tujuan memberikan wawasan yang mendalam tentang dinamika sosial-ekonomi 
         yang memengaruhi masyarakat Amerika Serikat. Empat aspek utama menjadi fokus dalam penelitian ini:
 
-        1. **GDP (Gross Domestic Product)**: GDP adalah indikator yang digunakan untuk mengukur total nilai barang dan jasa 
+        1. *GDP (Gross Domestic Product)*: GDP adalah indikator yang digunakan untuk mengukur total nilai barang dan jasa 
         yang diproduksi oleh suatu negara dalam periode tertentu. Data ini mencerminkan kinerja ekonomi Amerika Serikat dan 
         memberikan wawasan tentang pertumbuhan atau penurunan ekonomi.
 
-        2. **Population (Populasi)**: Data populasi memberikan gambaran jumlah penduduk yang dapat memengaruhi berbagai aspek sosial 
+        2. *Population (Populasi)*: Data populasi memberikan gambaran jumlah penduduk yang dapat memengaruhi berbagai aspek sosial 
         dan ekonomi. Informasi ini berguna untuk memahami bagaimana distribusi penduduk di berbagai negara bagian memengaruhi 
         kebutuhan layanan publik, pasar tenaga kerja, dan perkembangan ekonomi lokal.
 
-        3. **Poverty (Kemiskinan)**: Tingkat kemiskinan menjadi indikator penting dalam menilai kesejahteraan masyarakat. Data ini 
+        3. *Poverty (Kemiskinan)*: Tingkat kemiskinan menjadi indikator penting dalam menilai kesejahteraan masyarakat. Data ini 
         memberikan gambaran proporsi penduduk yang hidup di bawah garis kemiskinan, yang secara langsung berkaitan dengan akses 
         terhadap pendidikan, layanan kesehatan, dan peluang ekonomi.
 
-        4. **Unemployment (Pengangguran)**: Tingkat pengangguran adalah parameter utama untuk mengukur kesehatan pasar tenaga kerja. 
+        4. *Unemployment (Pengangguran)*: Tingkat pengangguran adalah parameter utama untuk mengukur kesehatan pasar tenaga kerja. 
         Data ini memberikan wawasan tentang peluang kerja di berbagai negara bagian dan bagaimana kondisi ekonomi lokal dapat 
         memengaruhi stabilitas sosial.
 
@@ -72,7 +72,7 @@ with tabs[0]:
 # Tab Data dan Analisis
 with tabs[1]:
     st.markdown("# Data dan Analisis")
-
+    
     # Choropleth Map - Peta Besar sebagai Spotlight
     st.subheader("Visualisasi Peta")
     choropleth = px.choropleth(
@@ -85,7 +85,7 @@ with tabs[1]:
         labels={selected_column: selected_column}
     )
     choropleth.update_layout(
-        title=f"Distribusi {selected_column} di ({', '.join(map(str, selected_states))}) untuk tahun ({', '.join(map(str, selected_years))})",
+        title=f"Distribusi {selected_column} di Amerika Serikat ({', '.join(map(str, selected_years))})",
         template='plotly_dark',
         height=600,  # Membuat peta lebih besar
         margin=dict(l=0, r=0, t=30, b=0)
@@ -124,19 +124,6 @@ with tabs[1]:
     )
     st.altair_chart(bar_chart, use_container_width=True)
 
-    # Line Chart
-    st.subheader("Visualisasi Tren")
-    line_chart = alt.Chart(df_filtered).mark_line(point=True).encode(
-        x=alt.X('Year:O', axis=alt.Axis(title="Tahun", labelFontSize=14, titleFontSize=16)),
-        y=alt.Y(selected_column, axis=alt.Axis(title=f"{selected_column}", labelFontSize=14, titleFontSize=16)),
-        color=alt.Color('States:N', legend=alt.Legend(title="Negara Bagian")),
-        tooltip=['Year', 'States', selected_column]
-    ).properties(
-        width=800,
-        height=400
-    )
-    st.altair_chart(line_chart, use_container_width=True)
-
     # Analisis Sederhana
     st.subheader("Analisis Data")
     if not df_filtered.empty:
@@ -148,16 +135,30 @@ with tabs[1]:
         std_dev = df_filtered[selected_column].std()
 
         st.markdown(f"""
-            <p>Berdasarkan analisis, rata-rata {selected_column} untuk tahun {', '.join(map(str, selected_years))} menunjukkan nilai rata-rata sebesar {avg_value:,.2f}, 
-            yang mencerminkan kondisi umum di seluruh negara tersebut. <br>
-            <p>Nilai tertinggi dicapai oleh negara bagian {max_state} dengan angka sebesar {max_value:,.2f}, 
+            <div style="font-size:18px; line-height:1.8;">
+            Berdasarkan analisis, rata-rata {selected_column} untuk tahun {', '.join(map(str, selected_years))} menunjukkan nilai rata-rata sebesar {avg_value:,.2f}, 
+            yang mencerminkan kondisi umum di seluruh negara bagian. <br>
+            
+            Nilai tertinggi dicapai oleh negara bagian {max_state} dengan angka sebesar {max_value:,.2f}, 
             menunjukkan kondisi yang lebih unggul dibandingkan negara bagian lainnya. Sebaliknya, nilai terendah dicatat oleh 
             negara bagian {min_state} dengan angka sebesar {min_value:,.2f}, menunjukkan tantangan dalam indikator ini. <br>
-            <p>Tingkat variasi antar negara bagian dapat dilihat dari deviasi standar sebesar {std_dev:,.2f}, 
-            yang menggambarkan seberapa besar perbedaan nilai dari rata-rata di negara bagian tersebut.
+            
+            Tingkat variasi antar negara bagian dapat dilihat dari deviasi standar sebesar {std_dev:,.2f}, 
+            yang menggambarkan seberapa besar perbedaan nilai dari rata-rata di seluruh negara bagian.
+            </div>
         """, unsafe_allow_html=True)
     else:
         st.write("Data tidak tersedia untuk tahun atau negara bagian yang dipilih.")
+
+    # Tombol Unduh Data
+    st.subheader("Unduh Data")
+    csv_data = df_filtered.to_csv(index=False)
+    st.download_button(
+        label="Download Data sebagai CSV",
+        data=csv_data,
+        file_name="filtered_data.csv",
+        mime="text/csv"
+    )
 
 # Tab Referensi
 with tabs[2]:
@@ -165,15 +166,17 @@ with tabs[2]:
     st.write("""
         Data yang digunakan dalam analisis ini diperoleh dari sumber-sumber berikut:
         
-        - **Bureau of Economic Analysis of the United States**
-        - **Bureau of Labor Statistics of the United States**
-        - **U.S. Census Bureau, Current Population Survey, 1960 to 2024 Annual Social and Economic Supplements (CPS ASEC)**
+        - *Bureau of Economic Analysis of the United States*
+        - *Bureau of Labor Statistics of the United States*
+        - *U.S. Census Bureau, Current Population Survey, 1960 to 2024 Annual Social and Economic Supplements (CPS ASEC)*
     """)
     
     st.caption("""
+       
+        
         This application is built by :
-        - **Dwi Artiaty Nasution**
-        - **Fatimatuzzahro**
-        - **Ilham Wahyu Firmansyah**
-        - **Muhammad Ricky Arzaaq**
+        - *Dwi Artiaty Nasution*
+        - *Fatimatuzzahro*
+        - *Ilham Wahyu Firmansyah*
+        - *Muhammad Ricky Arzaaq*
     """)
