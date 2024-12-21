@@ -71,7 +71,7 @@ with tabs[0]:
 
 # Tab Data dan Analisis
 with tabs[1]:
-    st.markdown("### Data dan Analisis")
+    st.markdown("# Data dan Analisis")
     
     # Choropleth Map - Peta Besar sebagai Spotlight
     st.subheader("Visualisasi Peta")
